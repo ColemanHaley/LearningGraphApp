@@ -10,6 +10,9 @@ model.eval()
 
 def get_predictions(topic, problem):
 
+    # topic : string type, 
+    # problem : string type
+
     score = 1.0
 
     tokenized_topic = tokenizer.tokenize(topic)
@@ -41,13 +44,18 @@ def get_predictions(topic, problem):
 
 topics = ['this is a wug. now there are two of them. the slurbs ', 'this is a slurb. the wugs to the cabinet  ']
 problems = ["and there is a book", "what we need to do is"]
+# predictions: list of list : each element is a list of scores corresponding to the each topic
 predictions = []
 result = []
+
+# loop over the lists of topics and problems 
 for each_problem in problems:
     scores = []
     for each_topic in topics:
         scores.append(get_predictions(each_topic, each_problem))
     predictions.append(scores)
+
+# Take an argmax to find the best topic, or we can find multiple topics further :: TODO
 for each in predictions:
     result.append(torch.argmax(torch.Tensor(each)))
 
