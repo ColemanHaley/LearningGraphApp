@@ -2,11 +2,15 @@ import torch
 from transformers import GPT2Tokenizer, GPT2Model, BertForMaskedLM, GPT2LMHeadModel
 import numpy as np
 from torch.nn.functional import softmax
+import sys
+gpu = sys.argv[1]
+device = torch.device("cuda:" + str(gpu))
 
-tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+tokenizer = GPT2Tokenizer.from_pretrained('distilgpt2').to(device)
 
-model = GPT2LMHeadModel.from_pretrained('gpt2')
+model = GPT2LMHeadModel.from_pretrained('distilgpt2').to(device)
 model.eval()
+
 
 def get_predictions(topic, problem):
 
@@ -26,6 +30,7 @@ def get_predictions(topic, problem):
     topic_tensor = torch.tensor([indexed_topic])
 
     for each_word in indexed_problem:
+        print(each_word)
         with torch.no_grad():
             outputs = model(topic_tensor)
             predictions = outputs[0]
@@ -33,7 +38,7 @@ def get_predictions(topic, problem):
         temp = predictions[0,-1,:]
         result = softmax(temp)
         score *= result[each_word]
-        topic_tensor = torch.cat((topic_tensor, torch.LongTensor([each_word]).unsqueeze(0)), 1)
+        topic_tensor = torch.cat((topic_tensor, torch.LongTensor([each_word]).unsqueeze(0)), 1)[:, 1:]
 
     return score.item()
     # print('are')
@@ -41,9 +46,21 @@ def get_predictions(topic, problem):
     # print('is')
     # print(result[iss])
     # print(result[are] > result[iss])
-
-topics = ['this is a wug. now there are two of them. the slurbs ', 'this is a slurb. the wugs to the cabinet  ']
-problems = ["and there is a book", "what we need to do is"]
+    
+topics = []
+problems = []
+with open("topics/dependency_parsing.txt", "r") as f:
+    topics.append(f.read()[0:1024])
+with open("topics/language_modelling.txt", "r") as f:
+    topics.append(f.read()[0:1024])
+with open("topics/machine_translation.txt", "r") as f:
+    topics.append(f.read()[0:1024])
+with open("topics/neural_nets.txt", "r") as f:
+    topics.append(f.read()[0:1024])
+with open("topics/vector_semantics.txt", "r") as f:
+    topics.append(f.read()[0:1024])
+with open("questions/q1_mt.txt", "r") as f:
+    problems.append(f.read()[0:1024])
 # predictions: list of list : each element is a list of scores corresponding to the each topic
 predictions = []
 result = []
@@ -52,6 +69,7 @@ result = []
 for each_problem in problems:
     scores = []
     for each_topic in topics:
+        print(topics.index(each_topic))
         scores.append(get_predictions(each_topic, each_problem))
     predictions.append(scores)
 
