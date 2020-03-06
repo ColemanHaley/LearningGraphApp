@@ -6,7 +6,7 @@ import sys
 gpu = sys.argv[1]
 device = torch.device("cuda:" + str(gpu))
 
-tokenizer = GPT2Tokenizer.from_pretrained('distilgpt2').to(device)
+tokenizer = GPT2Tokenizer.from_pretrained('distilgpt2')
 
 model = GPT2LMHeadModel.from_pretrained('distilgpt2').to(device)
 model.eval()
@@ -17,7 +17,7 @@ def get_predictions(topic, problem):
     # topic : string type, 
     # problem : string type
 
-    score = 1.0
+    score = 0
 
     tokenized_topic = tokenizer.tokenize(topic)
     tokenized_problem = tokenizer.tokenize(problem)
@@ -27,18 +27,17 @@ def get_predictions(topic, problem):
     indexed_problem = tokenizer.convert_tokens_to_ids(tokenized_problem)
 
     # Convert inputs to PyTorch tensors
-    topic_tensor = torch.tensor([indexed_topic])
+    topic_tensor = torch.tensor([indexed_topic]).to(device)
 
     for each_word in indexed_problem:
-        print(each_word)
         with torch.no_grad():
             outputs = model(topic_tensor)
             predictions = outputs[0]
 
         temp = predictions[0,-1,:]
         result = softmax(temp)
-        score *= result[each_word]
-        topic_tensor = torch.cat((topic_tensor, torch.LongTensor([each_word]).unsqueeze(0)), 1)[:, 1:]
+        score -= torch.log(result[each_word])
+        topic_tensor = torch.cat((topic_tensor, torch.LongTensor([each_word]).to(device).unsqueeze(0)), 1)[:, 1:]
 
     return score.item()
     # print('are')
@@ -78,4 +77,6 @@ for each in predictions:
     result.append(torch.argmax(torch.Tensor(each)))
 
 result = [topics[i] for i in result]
+print(topics)
+print(predictions)
 print(result)
