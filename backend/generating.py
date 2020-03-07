@@ -71,14 +71,14 @@ for each in problems:
         num_segs = len(each) // 1024
         for i in range(num_segs):
             segs.append(each[i * len(each): (i+1) * len(each)])
-        segs.append((i+1)*len(each):)
+        segs.append(each[(i+1)*len(each):])
         problem_segments.append(segs)
 print(problem_segments)
 print(problems)
 
 
 # loop over the lists of topics and problems 
-for each_problem in problems:
+for each_problem in problem_segments:
 
     scores = []
     for each_topic in topics:
