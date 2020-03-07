@@ -79,12 +79,22 @@ print(problems)
 
 # loop over the lists of topics and problems 
 for each_problem in problem_segments:
+    if isinstance(each_problem, str):
+        scores = []
+        for each_topic in topics:
+            print(topics.index(each_topic))
+            scores.append(get_predictions(each_topic, each_problem))
+        predictions.append(scores)
+    else:
+        scores = []
+        for each_topic in topics:
+            print(topics.index(each_topic))
+            score = 0.0
+            for each_seg in each_problem:
+                score += get_predictions(each_topic, each_seg)
+            scores.append(score)
+        predictions.append(scores)
 
-    scores = []
-    for each_topic in topics:
-        print(topics.index(each_topic))
-        scores.append(get_predictions(each_topic, each_problem))
-    predictions.append(scores)
 
 # Take an argmax to find the best topic, or we can find multiple topics further :: TODO
 for each in predictions:
