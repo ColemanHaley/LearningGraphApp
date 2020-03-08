@@ -7,4 +7,10 @@ CORS(app)
 
 @app.route('/')
 def index():
-    return jsonify(["Hello World","Again"])
+    return jsonify(["dependency_parsing.txt","language_modelling.txt"])
+
+
+@app.route('/resource/<id>', methods=['GET'])
+def get_resource(id):
+    with open('../topics/' + id) as f:
+        return jsonify('\n'.join(f.readlines()))
