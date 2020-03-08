@@ -1,4 +1,5 @@
 *.pyc
+.python-version
 *.sh
 setup.cfg
 pywebview.egg-info
@@ -13,6 +14,7 @@ obj
 node_modules
 dist
 gui
+env/
 .DS_Store
 venv*
 .vscode
