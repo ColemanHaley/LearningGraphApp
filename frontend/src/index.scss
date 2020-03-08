@@ -1,9 +1,10 @@
-@import './styles/fonts.scss';
+@import "./styles/fonts.scss";
+@import "antd/dist/antd.css";
 
 body {
   margin: 0;
-  padding: 0;
-  font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
+  padding: 0rem;
+  font-family: "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 14pt;
   line-height: 130%;
   color: #2c3e50;
@@ -11,12 +12,13 @@ body {
 }
 
 textarea {
-  font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: "Open Sans", "Helvetica Neue", sans-serif;
   font-size: 14pt;
   padding: 0.6rem;
 }
 
-
-h1, h2, h3 {
-  font-family: 'Roboto Condensed', 'Helvetica Neue', sans-serif;
+h1,
+h2,
+h3 {
+  font-family: "Roboto Condensed", "Helvetica Neue", sans-serif;
 }
