@@ -1,24 +1,22 @@
-@import "./styles/fonts.scss";
-@import "antd/dist/antd.css";
-
 body {
   margin: 0;
-  padding: 0rem;
-  font-family: "Open Sans", "Helvetica Neue", sans-serif;
-  font-size: 14pt;
-  line-height: 130%;
-  color: #2c3e50;
-  background-color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-textarea {
-  font-family: "Open Sans", "Helvetica Neue", sans-serif;
-  font-size: 14pt;
-  padding: 0.6rem;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }
 
-h1,
-h2,
-h3 {
-  font-family: "Roboto Condensed", "Helvetica Neue", sans-serif;
+.ant-layout-content {
+  min-height: 100rem;
+  padding: 2rem;
+}
+
+.App {
+  text-align: center;
 }
