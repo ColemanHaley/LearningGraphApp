@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ReactDOM from "react-dom";
 import "antd/dist/antd.css";
 import { Layout } from "antd";
-import Header from "./Components/Header/Header";
-import Home from "./Components/Pages/Home/Home";
-import Resource from "./Components/Pages/Resource/Resource";
+import Header from "./components/Header/Header";
+import Home from "./components/Pages/Home/Home";
+import Resource from "./components/Pages/Resource/Resource";
 import "./App.scss";
 import "./index.scss";
 
