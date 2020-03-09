@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Button, List } from "antd";
-import { Link, Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
 import api from "api.js";
 
