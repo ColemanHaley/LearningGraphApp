@@ -5,6 +5,7 @@ import "antd/dist/antd.css";
 import { Layout } from "antd";
 import Header from "./components/Header/Header";
 import Home from "./components/Pages/Home/Home";
+import AssignmentEdit from "./components/Pages/AssignmentEdit/AssignmentEdit";
 import Resource from "./components/Pages/Resource/Resource";
 import "./App.scss";
 import "./index.scss";
@@ -23,6 +24,7 @@ function App() {
                 <Home />
               </Route>
               <Route path="/resource/:id" component={Resource} />
+              <Route path="/assignment/edit/" component={AssignmentEdit} />
             </Switch>
           </Layout.Content>
         </Layout>

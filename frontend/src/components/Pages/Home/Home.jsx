@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Button, List } from "antd";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { PlusOutlined } from "@ant-design/icons";
 import api from "api.js";
 
@@ -13,6 +13,7 @@ const Home = () => {
   const [isLoadingA, setIsLoadingA] = useState(true);
 
   useEffect(() => api(`/`, setResources, setIsLoadingR), []);
+
   return (
     <>
       <h1>Resources</h1>
@@ -28,7 +29,11 @@ const Home = () => {
       />
       <h1>Assignments</h1>
       <List
-        footer={<Button icon={<PlusOutlined />}>Create assignment</Button>}
+        footer={
+          <Link to="/assignment/edit">
+            <Button icon={<PlusOutlined />}>Create assignment</Button>
+          </Link>
+        }
       />
     </>
   );
