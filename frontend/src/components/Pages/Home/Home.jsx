@@ -13,7 +13,7 @@ const Home = () => {
   const [isLoadingA, setIsLoadingA] = useState(true);
 
   useEffect(() => api(`/`, setResources, setIsLoadingR), []);
-
+  useEffect(() => api('/assignment/', setAssignments, setIsLoadingA), []);
   return (
     <>
       <h1>Resources</h1>
@@ -29,6 +29,13 @@ const Home = () => {
       />
       <h1>Assignments</h1>
       <List
+        dataSource={assignments}
+        loading={isLoadingA}
+        renderItem={item => (
+          <List.Item>
+            <Link to={"/assignment/" + item}>{item}</Link>
+          </List.Item>
+        )}
         footer={
           <Link to="/assignment/edit">
             <Button icon={<PlusOutlined />}>Create assignment</Button>

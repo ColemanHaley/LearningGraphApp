@@ -10,7 +10,7 @@ const ViewAssignment = props => {
   const [isLoadingA, setIsLoadingA] = useState(true);
    useEffect(
     () =>
-      api(`/assignments/${props.match.params.id}`, setAssignments, setIsLoadingA),
+      api(`/assignment/${props.match.params.id}`, setAssignments, setIsLoadingA),
     []
   );
   return (
