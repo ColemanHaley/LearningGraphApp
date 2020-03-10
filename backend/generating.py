@@ -109,4 +109,4 @@ def get_predicted_topics():
     return result
 
 
-get_predicted_topics()
+# get_predicted_topics()

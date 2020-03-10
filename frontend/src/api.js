@@ -1,9 +1,20 @@
 var heads = new Headers({});
-const api_call = (url, setData, setIsLoading, headers = heads) => {
-  fetch("http://localhost:5000" + url, {
-    method: "GET",
+const api_call = (
+  url,
+  setData,
+  setIsLoading,
+  method = "GET",
+  body = null,
+  headers = heads
+) => {
+  var params = {
+    method: method,
     headers: headers
-  })
+  };
+  if (body != null) {
+    params.body = body;
+  }
+  fetch("http://localhost:5000" + url, params)
     .then(res => res.json())
     .then(response => {
       setData(response);
