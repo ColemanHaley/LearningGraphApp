@@ -1,16 +1,31 @@
-import React  from "react";
-import { Tag, Input, Tooltip } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import React from "react";
+import { Tag, Input, Tooltip } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import api from "api.js";
 
-
 export default class EditableTagGroup extends React.Component {
-  state = {
-    //fill using api
-    tags: ['Tag 1', 'Tag 2', 'Tag 3'],
-    inputVisible: false,
-    inputValue: '',
-  };
+  constructor(props) {
+    super(props);
+    console.log(this.props);
+    this.state = {
+      //fill using api
+      tags: [],
+      loading: true,
+      inputVisible: false,
+      inputValue: ""
+    };
+  }
+  componentDidUpdate(prevProps) {
+    if (this.props.text !== prevProps.text) {
+      api(
+        `/get_topics`,
+        tags => this.setState({ ...this.state, tags: tags }),
+        loading => this.setState({ ...this.state, loading: loading }),
+        "POST",
+        this.props.text
+      );
+    }
+  }
 
   handleClose = removedTag => {
     const tags = this.state.tags.filter(tag => tag !== removedTag);
@@ -36,7 +51,7 @@ export default class EditableTagGroup extends React.Component {
     this.setState({
       tags,
       inputVisible: false,
-      inputValue: '',
+      inputValue: ""
     });
   };
 
