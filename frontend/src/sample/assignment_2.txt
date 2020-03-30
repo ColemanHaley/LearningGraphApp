@@ -1,0 +1,24 @@
+1 Written: Understanding word2vec (23 points)
+Let’s have a quick refresher on the word2vec algorithm. The key insight behind word2vec is that ‘a word
+is known by the company it keeps’. Concretely, suppose we have a ‘center’ word c and a contextual window
+surrounding c. We shall refer to words that lie in this contextual window as ‘outside words’. For example,
+in Figure 1 we see that the center word c is ‘banking’. Since the context window size is 2, the outside words
+are ‘turning’, ‘into’, ‘crises’, and ‘as’.
+The goal of the skip-gram word2vec algorithm is to accurately learn the probability distribution P(O|C).
+Given a specific word o and a specific word c, we want to calculate P(O = o|C = c), which is the probability
+that word o is an ‘outside’ word for c, i.e., the probability that o falls within the contextual window of c.
+In word2vec, the conditional probability distribution is given by taking vector dot-products and applying
+the softmax function.
+Here, uo is the ‘outside’ vector representing outside word o, and vc is the ‘center’ vector representing center
+word c. To contain these parameters, we have two matrices, U and V . The columns of U are all the ‘outside’
+vectors uw. The columns of V are all of the ‘center’ vectors vw. Both U and V contain a vector for every
+w ∈ Vocabulary.1
+Recall from lectures that, for a single pair of words c and o, the loss is given by:
+Jnaive-softmax(vc, o, U) = − log P(O = o|C = c). (2)
+Another way to view this loss is as the cross-entropy2 between the true distribution y and the predicted
+distribution yˆ. Here, both y and yˆ are vectors with length equal to the number of words in the vocabulary.
+Furthermore, the k
+th entry in these vectors indicates the conditional probability of the k
+th word being an
+‘outside word’ for the given c. The true empirical distribution y is a one-hot vector with a 1 for the true outside word o, and 0 everywhere else. The predicted distribution yˆ is the probability distribution P(O|C = c)
+given by our model in equation (1).

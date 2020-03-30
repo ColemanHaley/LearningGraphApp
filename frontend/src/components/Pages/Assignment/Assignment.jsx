@@ -5,9 +5,11 @@ import { PlusOutlined } from "@ant-design/icons";
 import api from "api.js";
 
 const { Header, Content, Footer } = Layout;
+
 const ViewAssignment = props => {
   const [assignments, setAssignments] = useState([]);
   const [isLoadingA, setIsLoadingA] = useState(true);
+  
    useEffect(
     () =>
       api(`/assignment/${props.match.params.id}`, setAssignments, setIsLoadingA),

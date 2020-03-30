@@ -8,6 +8,7 @@ import Home from "./components/Pages/Home/Home";
 import AssignmentEdit from "./components/Pages/AssignmentEdit/AssignmentEdit";
 import Assignment from "./components/Pages/Assignment/Assignment";
 import Resource from "./components/Pages/Resource/Resource";
+import StudentView from "./components/Pages/StudentView/StudentView";
 import "./App.scss";
 import "./index.scss";
 
@@ -26,6 +27,7 @@ function App() {
               </Route>
               <Route path="/resource/:id" component={Resource} />
               <Route path="/assignment/edit/" component={AssignmentEdit} />
+              <Route path = "/student/" component={StudentView} />
               <Route path="/assignment/:id" component={Assignment} />
             </Switch>
           </Layout.Content>

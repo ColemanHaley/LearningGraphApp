@@ -35,7 +35,7 @@ def get_topics():
 
 @app.route('/assignment/')
 def assignment_name():
-	return jsonify(["assignment_1.txt"])
+	return jsonify(["assignment_1.txt", "assignment_2.txt"])
 
 @app.route("/assignment/<id>", methods=["GET"])
 def get_assignment(id):
