@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Layout, Button, List } from "antd";
 import { Statistic, Row, Col, Card } from 'antd';
 import { Link } from "react-router-dom";
-import { LikeOutlined } from '@ant-design/icons';
-import { PlusOutlined } from "@ant-design/icons";
+import { BarChartOutlined } from '@ant-design/icons';
 import api from "api.js";
 
 const { Header, Content, Footer } = Layout;
@@ -18,6 +17,7 @@ const StudentView = () => {
   	useEffect(() => api(`/`, setResources, setIsLoadingR), []);
   	useEffect(() => api('/assignment/', setAssignments, setIsLoadingA), []);
 
+
 	return (
         <>
         <h1>Assignments</h1>
@@ -27,21 +27,21 @@ const StudentView = () => {
         renderItem={item => (
         	<>
           <List.Item>
-            <h3>{item}</h3>
+            <h3>{item.substring(0, item.length - 4)}</h3>
           </List.Item>
           <List.Item>
             <Row gutter={16}>	
 	        <Col>
-	        	<div onClick={() => {window.open('/assignment/' + item);}}>
+	        	<div onClick={() => {window.open('/analytics/' + item);}}>
 	        		<Card hoverable>
-		      			<Statistic title="Feedback" value={'View Feedback'} prefix={<LikeOutlined />} />
+		      			<Statistic title="Feedback" value={'View Feedback'} prefix={<BarChartOutlined />} />
 		      			
 		    		</Card>
 		    	</div>
 		    </Col>
         	<Col >
         		<Card>
-		    	<Statistic title="Score" value={Math.ceil(Math.random() * 51) + 50} suffix="/ 100" />
+		    	<Statistic title="Score" value={85} suffix="/ 100" />
 		    	</Card>
 		    </Col>
         </Row>
@@ -56,7 +56,7 @@ const StudentView = () => {
 	        loading={isLoadingR}
 	        renderItem={item => (
 	          <List.Item>
-	            <Link to={"/resource/" + item}>{item}</Link>
+	            <Link to={"/resource/" + item}>{item.substring(0, item.length - 4)}</Link>
 	          </List.Item>
 	        )}
 	      />  

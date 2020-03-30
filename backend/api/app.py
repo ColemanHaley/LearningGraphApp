@@ -41,3 +41,8 @@ def assignment_name():
 def get_assignment(id):
     with open("../../frontend/src/sample/" + id) as f:
         return jsonify("\n".join(f.readlines()))
+
+@app.route("/analytics/<id>", methods=["GET"])
+def view_submission(id):
+    with open("../../frontend/src/sample/" + id) as f:
+        return jsonify("\n".join(f.readlines()))
