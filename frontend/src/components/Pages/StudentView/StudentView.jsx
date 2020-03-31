@@ -50,7 +50,7 @@ const StudentView = () => {
         )}
       />
         
-        <h1>Resources</h1>
+        <h1>Class Resources</h1>
 	    <List
 	        dataSource={resources}
 	        loading={isLoadingR}
