@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Button, List, Card} from "antd";
 import { Link } from "react-router-dom";
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, EditOutlined } from '@ant-design/icons';
 import api from "api.js";
 
 const { Header, Content, Footer } = Layout;
@@ -25,8 +25,10 @@ const CourseInfo = () => {
         	<List.Item> {item} </List.Item>
       		)}
       	/>
+      	<Button type="primary" icon={<EditOutlined />}> Edit Course Topics </Button>
     	<h1>Learning Goals</h1>
     	<p> In this course, students will gain a thorough introduction to cutting-edge research in Deep Learning for NLP. Through lectures, assignments and a final project, students will learn the necessary skills to design, implement, and understand their own neural network models.</p>
+		<Button type="primary" icon={<EditOutlined />}> Edit Course Topics </Button>
 		</>
 	);
 };

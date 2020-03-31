@@ -33,7 +33,7 @@ const ViewAssignment = props => {
       <Card title="Question X"  
       extra={<a onClick={() => {
           alert("Coming soon!");}}>More</a>} style={{ width: '100%' }} >
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
+        <p>Preview: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. </p>
       </Card>
     </>
   );

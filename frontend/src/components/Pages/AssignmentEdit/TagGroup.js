@@ -1,5 +1,5 @@
 import React from "react";
-import { Tag, Input, Tooltip } from "antd";
+import { Tag, Input, Tooltip, Spin } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import api from "api.js";
 
@@ -9,7 +9,7 @@ export default class EditableTagGroup extends React.Component {
     console.log(this.props);
     this.state = {
       //fill using api
-      tags: [],
+      tags: [<Spin size="small"/>],
       loading: true,
       inputVisible: false,
       inputValue: ""
@@ -63,6 +63,8 @@ export default class EditableTagGroup extends React.Component {
       <div>
         {tags.map((tag, index) => {
           const isLongTag = tag.length > 20;
+          
+          
           const tagElem = (
             <Tag key={tag} closable onClose={() => this.handleClose(tag)}>
               {isLongTag ? `${tag.slice(0, 20)}...` : tag}
