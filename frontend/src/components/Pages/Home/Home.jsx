@@ -22,7 +22,7 @@ const Home = () => {
         loading={isLoadingR}
         renderItem={item => (
           <List.Item>
-            <Link to={"/resource/" + item}>{item}</Link>
+            <Link to={"/resource/" + item}>{item.substring(0, item.length - 4)}</Link>
           </List.Item>
         )}
         footer={<Button icon={<PlusOutlined />}>Add resource</Button>}
@@ -33,7 +33,7 @@ const Home = () => {
         loading={isLoadingA}
         renderItem={item => (
           <List.Item>
-            <Link to={"/assignment/" + item}>{item}</Link>
+            <Link to={"/assignment/" + item}>{item.substring(0, item.length - 4)}</Link>
           </List.Item>
         )}
         footer={

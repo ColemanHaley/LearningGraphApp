@@ -15,9 +15,11 @@ const Home = props => {
       api(`/resource/${props.match.params.id}`, setResources, setIsLoadingR),
     []
   );
+  let str = props.match.params.id;
+  str = str.substring(0, str.length - 4);
   return (
     <>
-      <h1>{props.match.params.id}</h1>
+      <h1>{str}</h1>
       {resources}
     </>
   );
