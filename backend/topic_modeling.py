@@ -1,5 +1,7 @@
 import os
 from gensim import corpora, models
+import ground_truth
+from collections import defaultdict
 
 import spacy
 import math
@@ -17,7 +19,9 @@ stopwords.words("english").extend(["one", "would", "said", "man"])
 stoplist = stopwords.words("english")
 nlp = spacy.load("en_core_web_sm")  # use list made by NLTK ppls
 
+labels = ["dependency_parsing.txt", "language_modelling.txt", "machine_translation.txt", "neural_nets.txt", "vector_semantics.txt"]
 
+lmbda = 0.0001
 def process(docs):
     processed_docs = []
     for doc in nlp.pipe(docs, n_threads=4, batch_size=100):
@@ -89,36 +93,334 @@ def build_model():
         pickle.dump((models, dictionary), mfile)
 
 
-def get_results(question):
+    # annotated questions
+    # for assignment, questions in ground_truth.items():
+    #     if assignment = "a2": # hold out assignment 2
+    #         continue
+    #     for q, labels in question.items():
+    #         for label in labels:
+    #             if label is not in p_class:
+    #                 p_class[label] = {}
+    #                 p_label[label] = 1
+    #             else:
+    #                 p_label[label] += 1
+    #             if assignment not in observations[label]:
+    #                 observations[label][assignment] = {}
+    #             observations[label][assignment][q] = 1
+    #             with open("../questions/"+assignment+"/"+q + ".txt") as q_file:
+    #                 q_txt = q_file.read()
+    #                 q_txt = process([q_txt])
+    #                 for i, lda in enumerate(models):
+    #                     if i not in p_class[label]:
+    #                         p_class[label][i] = [[],[],[],[],[]]
+    #                     theta = lda[dictionary.doc2bow(q_txt[0])]
+    #                     for j, feature in enumerate(theta):
+    #                         p_class[label][i][j].append(feature)
+
+    # topics labelled
+def predict(txt, models, dictionary, p_class, p_label):
+    Z = sum([val for _, val in p_label.items()])
+    txt = process([txt])
+    results = {label: 0 for label in labels}
+    for label in labels:
+        for i, lda in enumerate(models):
+            theta = lda[dictionary.doc2bow(txt[0])]
+            for j, feature in theta:
+                results[label] = feature * ((sum(p_class[label][i][j]) + lmbda) / (p_label[label]+10*lmbda)) * (p_label[label]/Z)
+    norm = sum(results.values())
+    results = {label: val/norm for label, val in results.items()}
+    return results
+
+def bayes_EM(models, dictionary):
+    p_class = {}
+    labels = ["dependency_parsing.txt", "language_modelling.txt", "machine_translation.txt", "neural_nets.txt", "vector_semantics.txt"]
+    p_label = {}
+    observations = {label: {} for label in labels}
+    for label in labels:
+        with open("topics/"+label) as doc:
+            try:
+                txt = doc.read()
+            except:
+                continue
+            if label not in p_class:
+                p_class[label] = {}
+                p_label[label] = 1
+            else:
+                p_label[label] += 1
+            if "topics" not in observations[label]:
+                observations[label]["topics"] = {}
+            observations[label]["topics"][label] = 1
+            txt = process([txt])
+            for i, lda in enumerate(models):
+                if i not in p_class[label]:
+                    p_class[label][i] = [[],[],[],[],[]]
+                theta = lda[dictionary.doc2bow(txt[0])]
+                for j, feature in theta:
+                        p_class[label][i][j].append(feature)
+    lmbda = 0.0001
+
+    Z = sum([val for _, val in p_label.items()])
+    for label, ms in p_class.items():
+        for i, topics in enumerate(ms):
+            for j in range(5):
+                p_class[label][i][j] = [((sum(p_class[label][i][j]) + lmbda) / (p_label[label]+(10*lmbda))) * (p_label[label]/Z) / 2]
+
+    # expectation maximization
+    epochs = 10
+    for label in labels:
+        observations[label]["resources"] = {}
+    for e in range(epochs):
+        i = -1
+        # expectation
+        print("expectation")
+        Z = sum([val for _, val in p_label.items()])
+        for file in os.listdir("resources/"):
+            with open("resources/" + file) as doc:
+                try:
+                    txt = doc.read()
+                    i += 1
+                except:
+                    continue
+                results = predict(txt, models, dictionary, p_class, p_label)
+                for label in labels:
+                    observations[label]["resources"][file] = results[label]
+        # maximization
+        # print(observations)
+        print("maximization")
+        for file in os.listdir("resources/"):
+            with open("resources/" + file) as doc:
+                try:
+                    txt = doc.read()
+                except:
+                    continue
+                txt = process([txt])
+                for label in labels:
+                    if label not in p_class:
+                        p_class[label] = {}
+                        p_label[label] = observations[label]["resources"][file]
+                    else:
+                        p_label[label] += observations[label]["resources"][file]
+                    for i, lda in enumerate(models):
+                        if i not in p_class[label]:
+                            p_class[label][i] = [[],[],[],[],[]]
+                        theta = lda[dictionary.doc2bow(txt[0])]
+                        for j, feature in theta:
+                            p_class[label][i][j].append(feature*observations[label]["resources"][file])
+        #print(observations)
+    with open("classifier.pkl", "wb") as mfile:
+        pickle.dump((p_class, p_label), mfile)
+
+
+def evaluate_bayes():
     try:
-        with open("../topic_models.pkl", "rb") as f:
+        with open("topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     except:
+        print('heyo!')
         build_model()
-        with open("../topic_models.pkl", "rb") as f:
+        with open("topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
+    try:
+        with open("classifier.pkl", "rb") as f:
+            p_class, p_label = pickle.load(f)
+    except:
+        bayes_EM(models, dictionary)
+    tp = defaultdict(int)
+    fp = defaultdict(int)
+    tn = defaultdict(int)
+    fn = defaultdict(int)
+    for assignment, questions in ground_truth.get_groundTruth().items():
+        for question, ground in questions.items():
+            with open('questions/' + assignment + "/" + question) as f:
+                try:
+                    txt = f.read()
+                except:
+                    continue
+                results = predict(txt, models, dictionary, p_class, p_label)
+                tops = sorted(results, key=results.get, reverse=True)[:len(labels)]
+                for label in labels:
+                    if label in tops and label in ground:
+                        tp[label] += 1
+                    elif label in tops and label not in ground:
+                        fp[label] += 1
+                    elif label in ground and label not in tops:
+                        fn[label] += 1
+                    else:
+                        tn[label] += 1
+
+    precision_dict = {}
+    recall_dict = {}
+    f1_dict = {}
+    for label in labels:
+        if tp[label] == 0:
+            print(label)
+            continue
+        precision_dict[label] = tp[label] / (fp[label]+tp[label])
+        recall_dict[label] = tp[label] / (fn[label]+tp[label])
+        f1_dict[label] = 2 * (precision_dict[label] * recall_dict[label]) / (precision_dict[label] + recall_dict[label])
+
+    macro_precision = sum(precision_dict.values()) / 5
+    macro_recall = sum(recall_dict.values()) / 5
+    macro_f1 = sum(f1_dict.values()) / 5
+    micro_precision = sum(tp.values()) / (sum(tp.values()) + sum(fp.values()))
+    micro_recall = sum(tp.values()) / (sum(tp.values()) + sum(fn.values()))
+    micro_f1 = 2 * (micro_precision * micro_recall) / (micro_recall + micro_precision)
+
+    print("### PER-CLASS METRICS ###")
+    print("PRECIS  RECALL  F1    ")
+    for label in labels:
+        print(f"{precision_dict[label]:6.4f}  {recall_dict[label]:6.4f}  {f1_dict[label]:6.4f}  {label.upper()}")
+
+    print()
+    print("### AVERAGED METRICS ###")
+    print()
+    print("MICRO AVERAGED")
+    print("PRECIS  RECALL  F1    ")
+    print(f"{micro_precision:6.4f}  {micro_recall:6.4f}  {micro_f1:6.4f}")
+    print()
+    print("MACRO AVERAGED")
+    print("PRECIS  RECALL  F1    ")
+    print(f"{macro_precision:6.4f}  {macro_recall:6.4f}  {macro_f1:6.4f}")
+
+def evaluate_baseline():
+    try:
+        with open("topic_models.pkl", "rb") as f:
+            models, dictionary = pickle.load(f)
+    except:
+        print('heyo!')
+        build_model()
+        with open("topic_models.pkl", "rb") as f:
+            models, dictionary = pickle.load(f)
+    try:
+        with open("classifier.pkl", "rb") as f:
+            p_class, p_label = pickle.load(f)
+    except:
+        bayes_EM(models, dictionary)
+    tp = defaultdict(int)
+    fp = defaultdict(int)
+    tn = defaultdict(int)
+    fn = defaultdict(int)
+    for assignment, questions in ground_truth.get_groundTruth().items():
+        for question, ground in questions.items():
+            with open('questions/' + assignment + "/" + question) as f:
+                try:
+                    txt1 = f.read()
+                except:
+                    continue
+                txt1 = process([txt1])
+                results = {}
+                for file in os.listdir("topics/"):
+                    with open("topics/" + file) as doc2:
+                        txt = doc2.read()
+                        # print("hey")
+                        txt = process([txt])
+                        # print(txt)
+                        # print("ho")
+                        kl = 0
+                        for lda in models:
+                            p = lda[dictionary.doc2bow(txt1[0])]
+                            # print(p)
+                            q = lda[dictionary.doc2bow(txt[0])]
+                            # print(q)
+                            for y, w1 in p:
+                                for x, w0 in q:
+                                    if x == y:
+                                        kl += w0 * w1
+                        results[file] = kl
+                tops = sorted(results, key=results.get, reverse=True)[:len(labels)]
+                for label in labels:
+                    if label in tops and label in ground:
+                        tp[label] += 1
+                    elif label in tops and label not in ground:
+                        fp[label] += 1
+                    elif label in ground and label not in tops:
+                        fn[label] += 1
+                    else:
+                        tn[label] += 1
+
+    precision_dict = {}
+    recall_dict = {}
+    f1_dict = {}
+    for label in labels:
+        if tp[label] == 0:
+            print(label)
+            continue
+        precision_dict[label] = tp[label] / (fp[label]+tp[label])
+        recall_dict[label] = tp[label] / (fn[label]+tp[label])
+        f1_dict[label] = 2 * (precision_dict[label] * recall_dict[label]) / (precision_dict[label] + recall_dict[label])
+
+    macro_precision = sum(precision_dict.values()) / 5
+    macro_recall = sum(recall_dict.values()) / 5
+    macro_f1 = sum(f1_dict.values()) / 5
+    micro_precision = sum(tp.values()) / (sum(tp.values()) + sum(fp.values()))
+    micro_recall = sum(tp.values()) / (sum(tp.values()) + sum(fn.values()))
+    micro_f1 = 2 * (micro_precision * micro_recall) / (micro_recall + micro_precision)
+
+    print("### PER-CLASS METRICS ###")
+    print("PRECIS  RECALL  F1    ")
+    for label in labels:
+        print(f"{precision_dict[label]:6.4f}  {recall_dict[label]:6.4f}  {f1_dict[label]:6.4f}  {label.upper()}")
+
+    print()
+    print("### AVERAGED METRICS ###")
+    print()
+    print("MICRO AVERAGED")
+    print("PRECIS  RECALL  F1    ")
+    print(f"{micro_precision:6.4f}  {micro_recall:6.4f}  {micro_f1:6.4f}")
+    print()
+    print("MACRO AVERAGED")
+    print("PRECIS  RECALL  F1    ")
+    print(f"{macro_precision:6.4f}  {macro_recall:6.4f}  {macro_f1:6.4f}")
+
+
+
+
+
+
+
+
+
+
+
+
+
+def get_results(question):
+    try:
+        with open("topic_models.pkl", "rb") as f:
+            models, dictionary = pickle.load(f)
+    except:
+        print('heyo!')
+        build_model()
+        with open("topic_models.pkl", "rb") as f:
+            models, dictionary = pickle.load(f)
+    try:
+        with open("classifier.pkl", "rb") as f:
+            p_class, p_label = pickle.load(f)
+    except:
+        bayes_EM(models, dictionary)
     results = []
     txt1 = process([question])
-    for file in os.listdir("../topics/"):
-        with open("../topics/" + file) as doc2:
-            txt = doc2.read()
-            # print("hey")
-            txt = process([txt])
-            # print(txt)
-            # print("ho")
-            kl = 0
-            for lda in models:
-                p = lda[dictionary.doc2bow(txt1[0])]
-                # print(p)
-                q = lda[dictionary.doc2bow(txt[0])]
-                # print(q)
-                for y, w1 in p:
-                    for x, w0 in q:
-                        if x == y:
-                            kl += w0 * w1
-            results.append((file, kl))
-    print(results)
-    return sorted(results, key=lambda x: -x[1])[:2]
+    results = predict(txt1, models, dictionary, p_class, p_label)
+    sorted(results, key=results.get, reverse=True)[:2]
+    # for file in os.listdir("topics/"):
+    #     with open("topics/" + file) as doc2:
+    #         txt = doc2.read()
+    #         # print("hey")
+    #         txt = process([txt])
+    #         # print(txt)
+    #         # print("ho")
+    #         kl = 0
+    #         for lda in models:
+    #             p = lda[dictionary.doc2bow(txt1[0])]
+    #             # print(p)
+    #             q = lda[dictionary.doc2bow(txt[0])]
+    #             # print(q)
+    #             for y, w1 in p:
+    #                 for x, w0 in q:
+    #                     if x == y:
+    #                         kl += w0 * w1
+    #         results.append((file, kl))
+    #return sorted(results, key=lambda x: -x[1])[:2]
     # if not found:
     #     kl += 1
     # min_kl = math.inf
