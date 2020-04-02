@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import sys
+import threading
 
 sys.path.append("..")
 #import generating
@@ -10,6 +11,16 @@ app = Flask(__name__)
 
 CORS(app)
 
+lemmatizer = None
+
+@app.before_first_request
+def activate_job():
+    def run_job():
+        from nltk.stem import WordNetLemmatizer
+        lemmatizer = WordNetLemmatizer()
+
+    thread = threading.Thread(target=run_job)
+    thread.start()
 
 @app.route("/")
 def index():
@@ -29,8 +40,10 @@ def get_prediction():
 
 @app.route("/get_topics", methods=["POST"])
 def get_topics():
-    print(request.data)
-    return jsonify(topic_modeling.get_results(str(request.data)))
+    #print(request.data)
+    r = jsonify(topic_modeling.get_results(request.data))
+    print(r)
+    return r
 
 
 @app.route('/assignment/')

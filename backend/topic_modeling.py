@@ -24,11 +24,12 @@ labels = ["dependency_parsing.txt", "language_modelling.txt", "machine_translati
 lmbda = 0.0001
 def process(docs):
     processed_docs = []
+    print('hey')
+    print(docs)
     for doc in nlp.pipe(docs, n_threads=4, batch_size=100):
         ents = doc.ents  # Named entities.
         doc = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
         doc.extend([str(entity) for entity in ents if len(entity) > 1])
-
         processed_docs.append(doc)
 
     docs = processed_docs
@@ -237,7 +238,7 @@ def evaluate_bayes():
                 except:
                     continue
                 results = predict(txt, models, dictionary, p_class, p_label)
-                tops = sorted(results, key=results.get, reverse=True)[:len(labels)]
+                tops = sorted(results, key=results.get, reverse=True)[:len(ground)]
                 for label in labels:
                     if label in tops and label in ground:
                         tp[label] += 1
@@ -248,9 +249,9 @@ def evaluate_bayes():
                     else:
                         tn[label] += 1
 
-    precision_dict = {}
-    recall_dict = {}
-    f1_dict = {}
+    precision_dict = defaultdict(int)
+    recall_dict = defaultdict(int)
+    f1_dict = defaultdict(int)
     for label in labels:
         if tp[label] == 0:
             print(label)
@@ -327,7 +328,7 @@ def evaluate_baseline():
                                     if x == y:
                                         kl += w0 * w1
                         results[file] = kl
-                tops = sorted(results, key=results.get, reverse=True)[:len(labels)]
+                tops = sorted(results, key=results.get, reverse=True)[:len(ground)]
                 for label in labels:
                     if label in tops and label in ground:
                         tp[label] += 1
@@ -338,9 +339,9 @@ def evaluate_baseline():
                     else:
                         tn[label] += 1
 
-    precision_dict = {}
-    recall_dict = {}
-    f1_dict = {}
+    precision_dict = defaultdict(int)
+    recall_dict = defaultdict(int)
+    f1_dict = defaultdict(int)
     for label in labels:
         if tp[label] == 0:
             print(label)
@@ -385,23 +386,25 @@ def evaluate_baseline():
 
 
 def get_results(question):
+    print('hi')
     try:
-        with open("topic_models.pkl", "rb") as f:
+        with open("../topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     except:
         print('heyo!')
         build_model()
-        with open("topic_models.pkl", "rb") as f:
+        with open("../topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     try:
-        with open("classifier.pkl", "rb") as f:
+        with open("../classifier.pkl", "rb") as f:
             p_class, p_label = pickle.load(f)
     except:
         bayes_EM(models, dictionary)
     results = []
-    txt1 = process([question])
-    results = predict(txt1, models, dictionary, p_class, p_label)
-    sorted(results, key=results.get, reverse=True)[:2]
+    #print(question)
+    #txt1 = process([question.decode('utf-8')])
+    results = predict(str(question, 'utf-8'), models, dictionary, p_class, p_label)
+    return sorted(results, key=results.get, reverse=True)[:2]
     # for file in os.listdir("topics/"):
     #     with open("topics/" + file) as doc2:
     #         txt = doc2.read()
