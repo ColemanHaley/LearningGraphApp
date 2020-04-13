@@ -9,7 +9,7 @@ const TopBar = () => {
   return (
     <>
       <Link to="/">
-        <div className="logo" />
+        <div className="logo">terrazzo</div>
       </Link>
 
       <Menu
@@ -19,12 +19,12 @@ const TopBar = () => {
         defaultSelectedKeys={["2"]}
         style={{ lineHeight: "64px" }}
       >
-         <Menu.Item key="1">
-           <Link to ="/info/">Course Info </Link>
-         </Menu.Item> 
-         <Menu.Item key="2">
-           <Link to ="/student/"> Student View </Link>
-         </Menu.Item>
+        <Menu.Item key="1">
+          <Link to="/info/">Course Info </Link>
+        </Menu.Item>
+        <Menu.Item key="2">
+          <Link to="/student/"> Student View </Link>
+        </Menu.Item>
       </Menu>
     </>
   );
