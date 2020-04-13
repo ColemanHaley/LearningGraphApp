@@ -1,1 +1,8 @@
 flask
+gensim
+spacy
+pytorch
+torchvision
+transformers
+nltk
+pickle5

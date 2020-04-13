@@ -5,8 +5,8 @@ from torch.nn.functional import softmax
 import sys
 
 # gpu = sys.argv[1]
-# device = torch.device("cuda:" + str(gpu))
-device = torch.device("cpu")
+device = torch.device("cuda:0")
+# device = torch.device("cpu")
 
 tokenizer = GPT2Tokenizer.from_pretrained("distilgpt2")
 
@@ -55,17 +55,17 @@ def get_predictions(topic, problem):
 def get_predicted_topics():
     topics = []
     problems = []
-    with open("../topics/dependency_parsing.txt", "r") as f:
+    with open("../topics/dependency_parsing.txt", "r", encoding="utf8") as f:
         topics.append(f.read()[0:1024])
-    with open("../topics/language_modelling.txt", "r") as f:
+    with open("../topics/language_modelling.txt", "r", encoding="utf8") as f:
         topics.append(f.read()[0:1024])
-    with open("../topics/machine_translation.txt", "r") as f:
+    with open("../topics/machine_translation.txt", "r", encoding="utf8") as f:
         topics.append(f.read()[0:1024])
-    with open("../topics/neural_nets.txt", "r") as f:
+    with open("../topics/neural_nets.txt", "r", encoding="utf8") as f:
         topics.append(f.read()[0:1024])
-    with open("../topics/vector_semantics.txt", "r") as f:
+    with open("../topics/vector_semantics.txt", "r", encoding="utf8") as f:
         topics.append(f.read()[0:1024])
-    with open("../questions/q1_mt.txt", "r") as f:
+    with open("../questions/q1_mt.txt", "r", encoding="utf8") as f:
         problems.append(f.read())
     # predictions: list of list : each element is a list of scores corresponding to the each topic
     predictions = []
@@ -109,4 +109,4 @@ def get_predicted_topics():
     return result
 
 
-# get_predicted_topics()
+get_predicted_topics()
