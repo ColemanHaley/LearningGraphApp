@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "antd";
 import "./Landing.scss";
 
@@ -15,7 +16,7 @@ const Landing = props => {
           </p>
           <p>
             <Button type="primary" size="large" shape="round">
-              Sign up now!
+              <Link to="/sign-up/">Sign up now!</Link>
             </Button>
           </p>
         </div>

@@ -9,6 +9,7 @@ import LandingPage from "./components/Pages/Landing/Landing";
 import AssignmentEdit from "./components/Pages/AssignmentEdit/AssignmentEdit";
 import Assignment from "./components/Pages/Assignment/Assignment";
 import Resource from "./components/Pages/Resource/Resource";
+import SignUp from "./components/Pages/SignUp/SignUp";
 import StudentView from "./components/Pages/StudentView/StudentView";
 import StudentAnalytics from "./components/Pages/StudentAnalytics/StudentAnalytics";
 import ProfAnalytics from "./components/Pages/ProfAnalytics/ProfAnalytics";
@@ -33,6 +34,10 @@ function App() {
                 {loggedIn ? <Home /> : <LandingPage />}
               </Route>
               <Route path="/resource/:id" component={Resource} />
+              <Route
+                path="/sign-up/"
+                render={() => <SignUp setLoggedIn={setLoggedIn} />}
+              />
               <Route path="/assignment/edit/" component={AssignmentEdit} />
               <Route path="/assignment/:id" component={Assignment} />
               <Route path="/student/" component={StudentView} />
