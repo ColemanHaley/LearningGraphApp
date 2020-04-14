@@ -39,19 +39,19 @@ const ProfStudentForm = props => {
 //const f = Form.create({ name: "profstudent" })(ProfStudentForm);
 
 const SignUp = props => {
-  const [prof, setProf] = useState(null);
-  if (prof != null && prof == false) {
-    return <Redirect to="/sign-up/student" />;
-  } else if (prof == true) {
-    return <Redirect to="/sign-up/professor" />;
+  console.log(props.prof);
+  if (props.prof != null && props.prof == false) {
+    return <Redirect to="/" />;
+  } else if (props.prof == true) {
+    return <Redirect to="/course-setup/" />;
   }
   const handleSubmit = prof => {
-    setProf(prof);
+    props.setProfessor(prof);
     props.setLoggedIn(true);
   };
   return (
     <>
-      <div class="hero">
+      <div class="signup-hero">
         <div class="hero-content">
           <p>
             <span class="tagline">

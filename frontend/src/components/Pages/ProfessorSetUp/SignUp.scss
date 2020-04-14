@@ -10,14 +10,18 @@
   flex-direction: column;
   justify-content: center;
   color: white;
-  font-size: x-large;
   background-image: url("terrazzo-bg.png");
   padding: 10vw;
+}
+
+.exposition {
+  text-align: left;
 }
 .hero-content {
   .tagline {
     font-family: "Inknut Antiqua", serif;
     padding: 1rem 2rem;
+    font-size: x-large;
     background-color: rgba(100, 100, 100, 0.1);
   }
   button .button {
