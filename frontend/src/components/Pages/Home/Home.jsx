@@ -42,6 +42,10 @@ const Home = () => {
           </Link>
         }
       />
+      <Button type="primary" onClick={() => {
+          window.open('/prof_analytics/', '_self');}}>
+          Professor Analytics
+      </Button>
     </>
   );
 };

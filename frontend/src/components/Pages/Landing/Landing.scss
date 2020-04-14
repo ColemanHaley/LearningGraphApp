@@ -1,0 +1,39 @@
+.logo-txt {
+  font-family: "IBM Plex Mono", monospace;
+  color: #1890ff;
+}
+.hero {
+  min-height: 100vh;
+  min-width: 100vw;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+  background-image: url("terrazzo-bg.png");
+  background-size: cover;
+  font-size: xx-large;
+
+  padding: 10vw;
+}
+.hero-content {
+  .tagline {
+    font-family: "Inknut Antiqua", serif;
+    padding: 1rem 2rem;
+    background-color: rgba(200, 200, 200, 0.1);
+  }
+  button .button {
+    font-size: xx-large;
+  }
+}
+
+.app-desc {
+  padding: 3rem 20rem;
+  font-family: "Inknut Antiqua", serif;
+  font-size: large;
+  text-align: left;
+}
+.ant-layout-content {
+  padding: 0rem !important;
+  background-color: white !important;
+}
