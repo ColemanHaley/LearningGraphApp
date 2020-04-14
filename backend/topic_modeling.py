@@ -6,13 +6,29 @@ from collections import defaultdict
 import spacy
 import math
 import pickle
+import random
 
 from nltk.corpus import stopwords
 import nltk
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
 
+train_set = []
+test_set = []
+dataset = []
+for assignment, questions in ground_truth.get_groundTruth().items():
+    for each in questions.keys():
+        dataset.append((assignment, each))
 
+train_num = 2
+for i in range(train_num):
+    choice = random.choice(dataset)
+    while choice == ("a3", "p2"):
+        choice = random.choice(dataset)
+    train_set.append(choice)
+    dataset.remove(choice)
+test_set = dataset
+print(test_set)
 
 nltk.download("wordnet")
 nltk.download("stopwords")
@@ -161,6 +177,30 @@ def bayes_EM(models, dictionary):
                 theta = lda[dictionary.doc2bow(txt[0])]
                 for j, feature in theta:
                         p_class[label][i][j].append(feature)
+    for assignment, question in train_set:
+        print(assignment, question)
+        with open('questions/' + assignment + "/" + question) as f:
+            try:
+                txt = doc.read()
+            except:
+                continue
+            label = ground_truth[assignment][question]
+            for each in label:
+                if each not in p_class:
+                    p_class[each] = {}
+                    p_label[each] = 1
+                else:
+                    p_label[each] += 1
+                if "topics" not in observations[each]:
+                    observations[each]["topics"] = {}
+                observations[each]["topics"][each] = 1
+                txt = process([txt])
+                for i, lda in enumerate(models):
+                    if i not in p_class[each]:
+                        p_class[each][i] = [[],[],[],[],[]]
+                    theta = lda[dictionary.doc2bow(txt[0])]
+                    for j, feature in theta:
+                            p_class[each][i][j].append(feature)
     lmbda = 0.0001
 
     Z = sum([val for _, val in p_label.items()])
@@ -235,24 +275,29 @@ def evaluate_bayes():
     fp = defaultdict(int)
     tn = defaultdict(int)
     fn = defaultdict(int)
-    for assignment, questions in ground_truth.get_groundTruth().items():
-        for question, ground in questions.items():
-            with open('questions/' + assignment + "/" + question) as f:
-                try:
-                    txt = f.read()
-                except:
-                    continue
-                results = predict(txt, models, dictionary, p_class, p_label)
-                tops = sorted(results, key=results.get, reverse=True)[:len(ground)]
-                for label in labels:
-                    if label in tops and label in ground:
-                        tp[label] += 1
-                    elif label in tops and label not in ground:
-                        fp[label] += 1
-                    elif label in ground and label not in tops:
-                        fn[label] += 1
-                    else:
-                        tn[label] += 1
+    # for assignment, questions in ground_truth.get_groundTruth().items():
+    #     for question, ground in questions.items():
+    for assignment, question in test_set:
+        with open('questions/' + assignment + "/" + question) as f:
+            try:
+                txt = f.read()
+            except:
+                continue
+            results = predict(txt, models, dictionary, p_class, p_label)
+            ground = list(ground_truth.get_groundTruth()[assignment][question])
+            print(ground)
+            tops = sorted(results, key=results.get, reverse=True)[:len(ground)]
+            print(tops)
+            print()
+            for label in labels:
+                if label in tops and label in ground:
+                    tp[label] += 1
+                elif label in tops and label not in ground:
+                    fp[label] += 1
+                elif label in ground and label not in tops:
+                    fn[label] += 1
+                else:
+                    tn[label] += 1
 
     precision_dict = defaultdict(int)
     recall_dict = defaultdict(int)
