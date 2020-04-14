@@ -2,8 +2,8 @@
   font-family: "IBM Plex Mono", monospace;
   color: #1890ff;
 }
-.hero {
-  min-height: 100vh;
+.landing-hero {
+  min-height: 60vh;
   min-width: 100vw;
   text-align: center;
   display: flex;
@@ -35,5 +35,5 @@
 }
 .ant-layout-content {
   padding: 0rem !important;
-  background-color: white !important;
+  // background-color: white !important;
 }

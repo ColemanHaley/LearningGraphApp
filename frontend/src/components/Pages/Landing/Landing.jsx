@@ -6,7 +6,7 @@ import "./Landing.scss";
 const Landing = props => {
   return (
     <>
-      <div class="hero">
+      <div class="landing-hero">
         <div class="hero-content">
           <p>
             <span class="tagline">

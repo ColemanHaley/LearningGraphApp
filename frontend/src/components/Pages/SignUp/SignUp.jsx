@@ -51,7 +51,7 @@ const SignUp = props => {
   };
   return (
     <>
-      <div class="hero">
+      <div class="singup-hero">
         <div class="hero-content">
           <p>
             <span class="tagline">
