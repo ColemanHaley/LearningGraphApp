@@ -6,11 +6,29 @@ from collections import defaultdict
 import spacy
 import math
 import pickle
+import random
 
 from nltk.corpus import stopwords
 import nltk
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
+
+train_set = []
+test_set = []
+dataset = []
+for assignment, questions in ground_truth.get_groundTruth().items():
+    for each in questions.keys():
+        dataset.append((assignment, each))
+
+train_num = 2
+for i in range(train_num):
+    choice = random.choice(dataset)
+    while choice == ("a3", "p2"):
+        choice = random.choice(dataset)
+    train_set.append(choice)
+    dataset.remove(choice)
+test_set = dataset
+print(test_set)
 
 nltk.download("wordnet")
 nltk.download("stopwords")
@@ -25,7 +43,7 @@ lmbda = 0.0001
 def process(docs):
     processed_docs = []
     print('hey')
-    print(docs)
+    # print(docs)
     for doc in nlp.pipe(docs, n_threads=4, batch_size=100):
         ents = doc.ents  # Named entities.
         doc = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
@@ -65,8 +83,8 @@ def build_model():
     #         return len(os.listdir('Gutenberg/txt'))
 
     docs = []
-    for file in os.listdir("../resources/"):
-        with open("../resources/" + file) as doc:
+    for file in os.listdir("resources/"):
+        with open("resources/" + file) as doc:
             try:
                 txt = doc.read()
             except:
@@ -89,7 +107,7 @@ def build_model():
         lda = LdaModel(corpus, num_topics=5)
         models.append(lda)
     print("yo")
-    with open("../topic_models.pkl", "wb") as mfile:
+    with open("topic_models.pkl", "wb") as mfile:
         print("hey!")
         pickle.dump((models, dictionary), mfile)
 
@@ -153,11 +171,36 @@ def bayes_EM(models, dictionary):
             observations[label]["topics"][label] = 1
             txt = process([txt])
             for i, lda in enumerate(models):
+                print(i)
                 if i not in p_class[label]:
                     p_class[label][i] = [[],[],[],[],[]]
                 theta = lda[dictionary.doc2bow(txt[0])]
                 for j, feature in theta:
                         p_class[label][i][j].append(feature)
+    for assignment, question in train_set:
+        print(assignment, question)
+        with open('questions/' + assignment + "/" + question) as f:
+            try:
+                txt = doc.read()
+            except:
+                continue
+            label = ground_truth[assignment][question]
+            for each in label:
+                if each not in p_class:
+                    p_class[each] = {}
+                    p_label[each] = 1
+                else:
+                    p_label[each] += 1
+                if "topics" not in observations[each]:
+                    observations[each]["topics"] = {}
+                observations[each]["topics"][each] = 1
+                txt = process([txt])
+                for i, lda in enumerate(models):
+                    if i not in p_class[each]:
+                        p_class[each][i] = [[],[],[],[],[]]
+                    theta = lda[dictionary.doc2bow(txt[0])]
+                    for j, feature in theta:
+                            p_class[each][i][j].append(feature)
     lmbda = 0.0001
 
     Z = sum([val for _, val in p_label.items()])
@@ -226,28 +269,35 @@ def evaluate_bayes():
             p_class, p_label = pickle.load(f)
     except:
         bayes_EM(models, dictionary)
+        with open("classifier.pkl", "rb") as f:
+            p_class, p_label = pickle.load(f)
     tp = defaultdict(int)
     fp = defaultdict(int)
     tn = defaultdict(int)
     fn = defaultdict(int)
-    for assignment, questions in ground_truth.get_groundTruth().items():
-        for question, ground in questions.items():
-            with open('questions/' + assignment + "/" + question) as f:
-                try:
-                    txt = f.read()
-                except:
-                    continue
-                results = predict(txt, models, dictionary, p_class, p_label)
-                tops = sorted(results, key=results.get, reverse=True)[:len(ground)]
-                for label in labels:
-                    if label in tops and label in ground:
-                        tp[label] += 1
-                    elif label in tops and label not in ground:
-                        fp[label] += 1
-                    elif label in ground and label not in tops:
-                        fn[label] += 1
-                    else:
-                        tn[label] += 1
+    # for assignment, questions in ground_truth.get_groundTruth().items():
+    #     for question, ground in questions.items():
+    for assignment, question in test_set:
+        with open('questions/' + assignment + "/" + question) as f:
+            try:
+                txt = f.read()
+            except:
+                continue
+            results = predict(txt, models, dictionary, p_class, p_label)
+            ground = list(ground_truth.get_groundTruth()[assignment][question])
+            print(ground)
+            tops = sorted(results, key=results.get, reverse=True)[:len(ground)]
+            print(tops)
+            print()
+            for label in labels:
+                if label in tops and label in ground:
+                    tp[label] += 1
+                elif label in tops and label not in ground:
+                    fp[label] += 1
+                elif label in ground and label not in tops:
+                    fn[label] += 1
+                else:
+                    tn[label] += 1
 
     precision_dict = defaultdict(int)
     recall_dict = defaultdict(int)
@@ -382,24 +432,26 @@ def evaluate_baseline():
 
 
 
-
-
+if __name__ == "__main__":
+    evaluate_bayes()
 
 def get_results(question):
     print('hi')
     try:
-        with open("../topic_models.pkl", "rb") as f:
+        with open("topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     except:
         print('heyo!')
         build_model()
-        with open("../topic_models.pkl", "rb") as f:
+        with open("topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     try:
-        with open("../classifier.pkl", "rb") as f:
+        with open("classifier.pkl", "rb") as f:
             p_class, p_label = pickle.load(f)
     except:
         bayes_EM(models, dictionary)
+        with open("classifier.pkl", "rb") as f:
+            p_class, p_label = pickle.load(f)
     results = []
     #print(question)
     #txt1 = process([question.decode('utf-8')])
