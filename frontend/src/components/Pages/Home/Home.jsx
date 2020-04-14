@@ -7,7 +7,7 @@ import "./Home.scss";
 
 const { Header, Content, Footer } = Layout;
 
-const Home = () => {
+const Home = props => {
   const [resources, setResources] = useState([]);
   const [isLoadingR, setIsLoadingR] = useState(true);
   const [assignments, setAssignments] = useState([]);
@@ -17,6 +17,7 @@ const Home = () => {
   useEffect(() => api("/assignment/", setAssignments, setIsLoadingA), []);
   return (
     <div class="home">
+      <h1 class="ctitle">CS224N: Natural Language Processing</h1>
       <Card title="Resources" style={{ width: "30rem", margin: "3rem auto" }}>
         <List
           dataSource={resources}
@@ -28,7 +29,11 @@ const Home = () => {
               </Link>
             </List.Item>
           )}
-          footer={<Button icon={<PlusOutlined />}>Add resource</Button>}
+          footer={
+            props.prof ? (
+              <Button icon={<PlusOutlined />}>Add resource</Button>
+            ) : null
+          }
         />
       </Card>
       <Card title="Assignments" style={{ width: "30rem", margin: "3rem auto" }}>
@@ -43,9 +48,11 @@ const Home = () => {
             </List.Item>
           )}
           footer={
-            <Link to="/assignment/edit">
-              <Button icon={<PlusOutlined />}>Create assignment</Button>
-            </Link>
+            props.prof ? (
+              <Link to="/assignment/edit">
+                <Button icon={<PlusOutlined />}>Create assignment</Button>
+              </Link>
+            ) : null
           }
         />
       </Card>

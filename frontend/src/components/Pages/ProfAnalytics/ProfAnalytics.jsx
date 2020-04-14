@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import api from "api.js";
 import { Statistic, Row, Col, Card } from "antd";
 import { Layout, Button, List } from "antd";
@@ -44,7 +44,10 @@ function CustomTooltip({ payload, label, active }) {
   return null;
 }
 
-const renderLineChart = () => {
+const renderLineChart = props => {
+  if (props.prof == false) {
+    return <Redirect to="/" />;
+  }
   return (
     <div class="home prof-analytics" style={{ width: "100%", height: 300 }}>
       <Card
