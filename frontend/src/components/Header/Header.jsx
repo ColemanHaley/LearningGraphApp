@@ -19,6 +19,9 @@ const loggedInMenu = (
     <Menu.Item key="2">
       <Link to="/student/"> Student View </Link>
     </Menu.Item>
+    <Menu.Item key="3">
+      <Link to = "/prof_analytics/"> Professor Analytics </Link>
+    </Menu.Item>
   </Menu>
 );
 
