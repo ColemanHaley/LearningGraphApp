@@ -1,13 +1,19 @@
 import React, { PureComponent } from 'react';
+import { useState, useEffect } from "react";
+import api from "api.js"
 import {
   BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 
 const data01 = [
-  { name: 'Assignment1.1', score: 9 }, { name: 'Assignment2.4', score: 9 },
-  { name: 'Assignment3.1', score: 6 }, { name: 'Assignment4.2', score: 7},
-  { name: 'Assignment5.4', score: 5 }
+  { name: 'assignment_1.1', Average_score: 9 }, { name: 'assignment_2.4', Average_score: 9 },
+  { name: 'assignment_3.1', Average_score: 6 }, { name: 'assignment_4.2', Average_score: 7},
+  { name: 'assignment_5.4', Average_score: 5 }
 ];
+
+// const [assignments, setAssignments] = useState([]);
+// const [isLoadingA, setIsLoadingA] = useState(true);
+// useEffect(() => api('/assignment/', setAssignments, setIsLoadingA), []);
 
 function CustomTooltip({ payload, label, active }) {
   if (active) {
@@ -38,7 +44,7 @@ export default class DynChart extends PureComponent {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey="score" stackId="a" fill="#1890ff" />
+        <Bar dataKey="Average_score" stackId="a" fill="#1890ff" onClick={() => {window.open('/student_answers/');}} />
       </BarChart>
       </ResponsiveContainer>
       </div>

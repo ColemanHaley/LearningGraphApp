@@ -14,6 +14,7 @@ import StudentView from "./components/Pages/StudentView/StudentView";
 import StudentAnalytics from "./components/Pages/StudentAnalytics/StudentAnalytics";
 import ProfAnalytics from "./components/Pages/ProfAnalytics/ProfAnalytics";
 import CourseInfo from "./components/Pages/CourseInfo/CourseInfo";
+import IndivAnswers from "./components/Pages/IndivAnswers/IndivAnswers";
 import "./App.scss";
 import "./index.scss";
 
@@ -44,6 +45,7 @@ function App() {
               <Route path="/analytics/:id" component={StudentAnalytics} />
               <Route path="/info/" component={CourseInfo} />
               <Route path="/prof_analytics/" component={ProfAnalytics} />
+              <Route path="/student_answers/" component={IndivAnswers} />
             </Switch>
           </Layout.Content>
         </Layout>
