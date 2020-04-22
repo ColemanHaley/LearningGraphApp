@@ -6,6 +6,7 @@ import { Layout, Menu } from "antd";
 const { Header, Content, Footer } = Layout;
 
 const TopBar = props => {
+  console.log(props);
   const loggedInMenu = props.prof ? (
     <Menu
       theme="dark"
@@ -21,7 +22,7 @@ const TopBar = props => {
         <Link to="/info/">Course Info </Link>
       </Menu.Item>
       <Menu.Item key="2">
-        <Link to="/student/">Assignment Analytics </Link>
+        <Link to="/prof_analytics/"> Assignment Analytica </Link>
       </Menu.Item>
       <Menu.Item key="5" onClick={() => props.setLoggedIn(false)}>
         Log out
@@ -42,7 +43,7 @@ const TopBar = props => {
         <Link to="/info/">Course Info </Link>
       </Menu.Item>
       <Menu.Item key="3">
-        <Link to="/prof_analytics/"> Assignment Analytics </Link>
+        <Link to="/student/">Assignment Analytics </Link>
       </Menu.Item>
       <Menu.Item key="5" onClick={() => props.setLoggedIn(false)}>
         Log out

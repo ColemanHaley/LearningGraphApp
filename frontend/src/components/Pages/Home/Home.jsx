@@ -7,14 +7,19 @@ import "./Home.scss";
 
 const { Header, Content, Footer } = Layout;
 
+const prettify = str => {
+  str = str.charAt(0).toUpperCase() + str.slice(1);
+  return str.split("_").join(" ");
+};
+
 const Home = props => {
   const [resources, setResources] = useState([]);
   const [isLoadingR, setIsLoadingR] = useState(true);
   const [assignments, setAssignments] = useState([]);
   const [isLoadingA, setIsLoadingA] = useState(true);
 
-  useEffect(() => api(`/`, setResources, setIsLoadingR), []);
-  useEffect(() => api("/assignment/", setAssignments, setIsLoadingA), []);
+  useEffect(() => api(`/resources/`, setResources, setIsLoadingR), []);
+  useEffect(() => api(`/assignments/`, setAssignments, setIsLoadingA), []);
   return (
     <div class="home">
       <h1 class="ctitle">CS224N: Natural Language Processing</h1>
@@ -25,7 +30,7 @@ const Home = props => {
           renderItem={item => (
             <List.Item>
               <Link to={"/resource/" + item}>
-                {item.substring(0, item.length - 4)}
+                {prettify(item.substring(0, item.length - 4))}
               </Link>
             </List.Item>
           )}
@@ -43,7 +48,7 @@ const Home = props => {
           renderItem={item => (
             <List.Item>
               <Link to={"/assignment/" + item}>
-                {item.substring(0, item.length - 4)}
+                {prettify(item.substring(0, item.length - 4))}
               </Link>
             </List.Item>
           )}

@@ -29,7 +29,11 @@ function App() {
       <Router>
         <Layout>
           <Layout.Header>
-            <Header loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
+            <Header
+              loggedIn={loggedIn}
+              setLoggedIn={setLoggedIn}
+              prof={professor}
+            />
           </Layout.Header>
           <Layout.Content>
             <Switch>
@@ -57,7 +61,7 @@ function App() {
               />
               <Route
                 path="/assignment/:id"
-                render={() => <Assignment prof={professor} />}
+                render={props => <Assignment prof={professor} {...props} />}
               />
               <Route
                 path="/student/"
@@ -65,7 +69,9 @@ function App() {
               />
               <Route
                 path="/analytics/:id"
-                render={() => <StudentAnalytics prof={professor} />}
+                render={props => (
+                  <StudentAnalytics prof={professor} {...props} />
+                )}
               />
               <Route
                 path="/info/"
