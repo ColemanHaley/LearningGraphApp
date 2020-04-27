@@ -12,10 +12,12 @@ dist
 .vs
 bin
 obj
+.env
 node_modules
 dist
 gui
 env/
+.env/
 .DS_Store
 venv*
 .vscode
