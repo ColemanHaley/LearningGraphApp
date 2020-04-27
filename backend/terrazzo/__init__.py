@@ -1,13 +1,18 @@
 from flask import Flask
 from os import environ
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+from flask_alembic import Alembic
 
+alembic = Alembic()
 db = SQLAlchemy()
+jwt = JWTManager()
 
 # Application factory
 def create_app(config_filename=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config["SQLALCHEMY_DATABASE_URI"] = environ.get("SQLALCHEMY_DATABASE_URI")
+    app.config["JWT_SECRET_KEY"] = environ.get("JWT_SECRET_KEY")
     initialize_extensions(app)
     register_blueprints(app)
     return app
@@ -15,6 +20,8 @@ def create_app(config_filename=None):
 
 def initialize_extensions(app):
     db.init_app(app)
+    jwt.init_app(app)
+    alembic.init_app(app)
 
 
 def register_blueprints(app):

@@ -60,7 +60,7 @@ const TopBar = props => {
     >
       <Menu.Item key="1">
         {/*<Link to="/login/">Log in</Link>*/}
-        <div onClick={() => props.setLoggedIn(true)}>Log in</div>
+        <Link to="login">Log in</Link>
       </Menu.Item>
     </Menu>
   );

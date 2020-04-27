@@ -18,22 +18,21 @@ import CourseInfo from "./components/Pages/CourseInfo/CourseInfo";
 import IndivAnswers from "./components/Pages/IndivAnswers/IndivAnswers";
 import "./App.scss";
 import "./index.scss";
+import Login from "./components/Pages/Login/Login";
+import api from "api.js";
 
 function App() {
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [professor, setProfessor] = React.useState(null);
   //const home = loggedIn ? Home : LandingPage;
+  React.useEffect(() => setLoggedIn(sessionStorage.getItem("terrazzo_access")));
   const sLI = val => setLoggedIn(val);
   return (
     <div className="App">
       <Router>
         <Layout>
           <Layout.Header>
-            <Header
-              loggedIn={loggedIn}
-              setLoggedIn={setLoggedIn}
-              prof={professor}
-            />
+            <Header loggedIn={loggedIn} prof={professor} />
           </Layout.Header>
           <Layout.Content>
             <Switch>
@@ -67,6 +66,7 @@ function App() {
                 path="/student/"
                 render={() => <StudentView prof={professor} />}
               />
+              <Route path="/login/" render={() => <Login />} />
               <Route
                 path="/analytics/:id"
                 render={props => (
