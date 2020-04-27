@@ -29,7 +29,7 @@ def index():
 
 @app.route("/resource/<id>", methods=["GET"])
 def get_resource(id):
-    with open("../topics/" + id) as f:
+    with open("./topics/" + id) as f:
         return jsonify("\n".join(f.readlines()))
 
 '''
@@ -52,10 +52,10 @@ def assignment_name():
 
 @app.route("/assignment/<id>", methods=["GET"])
 def get_assignment(id):
-    with open("../../frontend/src/sample/" + id) as f:
+    with open("./sample/" + id) as f:
         return jsonify("\n".join(f.readlines()))
 
 @app.route("/analytics/<id>", methods=["GET"])
 def view_submission(id):
-    with open("../../frontend/src/sample/" + id) as f:
+    with open("./sample/" + id) as f:
         return jsonify("\n".join(f.readlines()))

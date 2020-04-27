@@ -65,8 +65,8 @@ def build_model():
     #         return len(os.listdir('Gutenberg/txt'))
 
     docs = []
-    for file in os.listdir("../resources/"):
-        with open("../resources/" + file) as doc:
+    for file in os.listdir("./resources/"):
+        with open("./resources/" + file) as doc:
             try:
                 txt = doc.read()
             except:
@@ -89,7 +89,7 @@ def build_model():
         lda = LdaModel(corpus, num_topics=5)
         models.append(lda)
     print("yo")
-    with open("../topic_models.pkl", "wb") as mfile:
+    with open("./topic_models.pkl", "wb") as mfile:
         print("hey!")
         pickle.dump((models, dictionary), mfile)
 
@@ -388,15 +388,15 @@ def evaluate_baseline():
 def get_results(question):
     print('hi')
     try:
-        with open("../topic_models.pkl", "rb") as f:
+        with open("./topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     except:
         print('heyo!')
         build_model()
-        with open("../topic_models.pkl", "rb") as f:
+        with open("./topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     try:
-        with open("../classifier.pkl", "rb") as f:
+        with open("./classifier.pkl", "rb") as f:
             p_class, p_label = pickle.load(f)
     except:
         bayes_EM(models, dictionary)
