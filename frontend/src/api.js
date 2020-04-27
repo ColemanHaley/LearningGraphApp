@@ -14,7 +14,7 @@ const api_call = (
   if (body != null) {
     params.body = body;
   }
-  fetch("http://terrazzo-api.herokuapp.com" + url, params)
+  fetch("https://terrazzo-api.herokuapp.com" + url, params)
     .then(res => res.json())
     .then(response => {
       setData(response);
