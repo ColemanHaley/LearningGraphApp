@@ -107,11 +107,7 @@ def build_model():
         lda = LdaModel(corpus, num_topics=5)
         models.append(lda)
     print("yo")
-<<<<<<< HEAD
     with open("./topic_models.pkl", "wb") as mfile:
-=======
-    with open("topic_models.pkl", "wb") as mfile:
->>>>>>> 05c3ccb1144fac9bc2b628c1a18bfe5fd3424ac9
         print("hey!")
         pickle.dump((models, dictionary), mfile)
 
@@ -442,26 +438,15 @@ if __name__ == "__main__":
 def get_results(question):
     print('hi')
     try:
-<<<<<<< HEAD
         with open("./topic_models.pkl", "rb") as f:
-=======
-        with open("topic_models.pkl", "rb") as f:
->>>>>>> 05c3ccb1144fac9bc2b628c1a18bfe5fd3424ac9
             models, dictionary = pickle.load(f)
     except:
         print('heyo!')
         build_model()
-<<<<<<< HEAD
         with open("./topic_models.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     try:
         with open("./classifier.pkl", "rb") as f:
-=======
-        with open("topic_models.pkl", "rb") as f:
-            models, dictionary = pickle.load(f)
-    try:
-        with open("classifier.pkl", "rb") as f:
->>>>>>> 05c3ccb1144fac9bc2b628c1a18bfe5fd3424ac9
             p_class, p_label = pickle.load(f)
     except:
         bayes_EM(models, dictionary)
