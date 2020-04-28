@@ -6,29 +6,13 @@ from collections import defaultdict
 import spacy
 import math
 import pickle
-import random
 
 from nltk.corpus import stopwords
 import nltk
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
 
-train_set = []
-test_set = []
-dataset = []
-for assignment, questions in ground_truth.get_groundTruth().items():
-    for each in questions.keys():
-        dataset.append((assignment, each))
 
-train_num = 2
-for i in range(train_num):
-    choice = random.choice(dataset)
-    while choice == ("a3", "p2"):
-        choice = random.choice(dataset)
-    train_set.append(choice)
-    dataset.remove(choice)
-test_set = dataset
-print(test_set)
 
 nltk.download("wordnet")
 nltk.download("stopwords")
@@ -42,9 +26,9 @@ labels = ["dependency_parsing.txt", "language_modelling.txt", "machine_translati
 lmbda = 0.0001
 def process(docs):
     processed_docs = []
-    print('hey')
+    # print('Processing docs')
     # print(docs)
-    for doc in nlp.pipe(docs, n_threads=4, batch_size=100):
+    for doc in nlp.pipe(docs, n_threads=32, batch_size=100):
         ents = doc.ents  # Named entities.
         doc = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
         doc.extend([str(entity) for entity in ents if len(entity) > 1])
@@ -70,8 +54,8 @@ def process(docs):
     return docs
 
 
-def build_model():
-
+def build_model(num_lda_models):
+    print('Building model', flush=True)
     # class GutenbergCorpusBOW(object):
     #     def __iter__(self):
     #         for document in os.listdir('Gutenberg/txt'):
@@ -83,8 +67,8 @@ def build_model():
     #         return len(os.listdir('Gutenberg/txt'))
 
     docs = []
-    for file in os.listdir("./resources/"):
-        with open("./resources/" + file) as doc:
+    for file in os.listdir("resources/"):
+        with open("resources/" + file, encoding='utf8') as doc:
             try:
                 txt = doc.read()
             except:
@@ -103,16 +87,12 @@ def build_model():
 
     corpus = [dictionary.doc2bow(doc) for doc in docs]
     models = []
-    for i in range(10):
+    for i in range(num_lda_models):
         lda = LdaModel(corpus, num_topics=5)
         models.append(lda)
-    print("yo")
-<<<<<<< HEAD
-    with open("./topic_models.pkl", "wb") as mfile:
-=======
-    with open("topic_models.pkl", "wb") as mfile:
->>>>>>> 05c3ccb1144fac9bc2b628c1a18bfe5fd3424ac9
-        print("hey!")
+    
+    with open("topic_models_bs.pkl", "wb") as mfile:
+        print("Writing topic_models_bs.pkl", flush=True)
         pickle.dump((models, dictionary), mfile)
 
 
@@ -159,8 +139,9 @@ def bayes_EM(models, dictionary):
     labels = ["dependency_parsing.txt", "language_modelling.txt", "machine_translation.txt", "neural_nets.txt", "vector_semantics.txt"]
     p_label = {}
     observations = {label: {} for label in labels}
+    print('Building Bayes model', flush=True)
     for label in labels:
-        with open("topics/"+label) as doc:
+        with open("topics/"+label, encoding='utf8') as doc:
             try:
                 txt = doc.read()
             except:
@@ -175,36 +156,12 @@ def bayes_EM(models, dictionary):
             observations[label]["topics"][label] = 1
             txt = process([txt])
             for i, lda in enumerate(models):
-                print(i)
+                print(i, flush=True)
                 if i not in p_class[label]:
                     p_class[label][i] = [[],[],[],[],[]]
                 theta = lda[dictionary.doc2bow(txt[0])]
                 for j, feature in theta:
                         p_class[label][i][j].append(feature)
-    for assignment, question in train_set:
-        print(assignment, question)
-        with open('questions/' + assignment + "/" + question) as f:
-            try:
-                txt = doc.read()
-            except:
-                continue
-            label = ground_truth[assignment][question]
-            for each in label:
-                if each not in p_class:
-                    p_class[each] = {}
-                    p_label[each] = 1
-                else:
-                    p_label[each] += 1
-                if "topics" not in observations[each]:
-                    observations[each]["topics"] = {}
-                observations[each]["topics"][each] = 1
-                txt = process([txt])
-                for i, lda in enumerate(models):
-                    if i not in p_class[each]:
-                        p_class[each][i] = [[],[],[],[],[]]
-                    theta = lda[dictionary.doc2bow(txt[0])]
-                    for j, feature in theta:
-                            p_class[each][i][j].append(feature)
     lmbda = 0.0001
 
     Z = sum([val for _, val in p_label.items()])
@@ -220,10 +177,10 @@ def bayes_EM(models, dictionary):
     for e in range(epochs):
         i = -1
         # expectation
-        print("expectation")
+        print("Expectation epoch "+str(e), flush=True)
         Z = sum([val for _, val in p_label.items()])
         for file in os.listdir("resources/"):
-            with open("resources/" + file) as doc:
+            with open("resources/" + file, encoding='utf8') as doc:
                 try:
                     txt = doc.read()
                     i += 1
@@ -234,9 +191,9 @@ def bayes_EM(models, dictionary):
                     observations[label]["resources"][file] = results[label]
         # maximization
         # print(observations)
-        print("maximization")
+        print("Maximization epoch"+str(e), flush=True)
         for file in os.listdir("resources/"):
-            with open("resources/" + file) as doc:
+            with open("resources/" + file, encoding='utf8') as doc:
                 try:
                     txt = doc.read()
                 except:
@@ -259,19 +216,20 @@ def bayes_EM(models, dictionary):
         pickle.dump((p_class, p_label), mfile)
 
 
-def evaluate_bayes():
-    try:
-        with open("topic_models.pkl", "rb") as f:
-            models, dictionary = pickle.load(f)
-    except:
-        print('heyo!')
-        build_model()
-        with open("topic_models.pkl", "rb") as f:
-            models, dictionary = pickle.load(f)
+def evaluate_bayes(num_lda_models):
+    #try:
+    #    with open("topic_models.pkl", "rb") as f:
+    #        models, dictionary = pickle.load(f)
+    #except:
+    print('In evaluate bayes: model not found. Building it.', flush=True)
+    build_model(num_lda_models)
+    with open("topic_models_bs.pkl", "rb") as f:
+        models, dictionary = pickle.load(f)
     try:
         with open("classifier.pkl", "rb") as f:
             p_class, p_label = pickle.load(f)
     except:
+        print('In evaluate bayes: classifier not found. Building it', flush=True)
         bayes_EM(models, dictionary)
         with open("classifier.pkl", "rb") as f:
             p_class, p_label = pickle.load(f)
@@ -279,36 +237,31 @@ def evaluate_bayes():
     fp = defaultdict(int)
     tn = defaultdict(int)
     fn = defaultdict(int)
-    # for assignment, questions in ground_truth.get_groundTruth().items():
-    #     for question, ground in questions.items():
-    for assignment, question in test_set:
-        with open('questions/' + assignment + "/" + question) as f:
-            try:
-                txt = f.read()
-            except:
-                continue
-            results = predict(txt, models, dictionary, p_class, p_label)
-            ground = list(ground_truth.get_groundTruth()[assignment][question])
-            print(ground)
-            tops = sorted(results, key=results.get, reverse=True)[:len(ground)]
-            print(tops)
-            print()
-            for label in labels:
-                if label in tops and label in ground:
-                    tp[label] += 1
-                elif label in tops and label not in ground:
-                    fp[label] += 1
-                elif label in ground and label not in tops:
-                    fn[label] += 1
-                else:
-                    tn[label] += 1
+    for assignment, questions in ground_truth.get_groundTruth().items():
+        for question, ground in questions.items():
+            with open('questions/' + assignment + "/" + question, encoding='utf8') as f:
+                try:
+                    txt = f.read()
+                except:
+                    continue
+                results = predict(txt, models, dictionary, p_class, p_label)
+                tops = sorted(results, key=results.get, reverse=True)[:len(ground)]
+                for label in labels:
+                    if label in tops and label in ground:
+                        tp[label] += 1
+                    elif label in tops and label not in ground:
+                        fp[label] += 1
+                    elif label in ground and label not in tops:
+                        fn[label] += 1
+                    else:
+                        tn[label] += 1
 
     precision_dict = defaultdict(int)
     recall_dict = defaultdict(int)
     f1_dict = defaultdict(int)
     for label in labels:
         if tp[label] == 0:
-            print(label)
+            print(label, flush=True)
             continue
         precision_dict[label] = tp[label] / (fp[label]+tp[label])
         recall_dict[label] = tp[label] / (fn[label]+tp[label])
@@ -321,31 +274,31 @@ def evaluate_bayes():
     micro_recall = sum(tp.values()) / (sum(tp.values()) + sum(fn.values()))
     micro_f1 = 2 * (micro_precision * micro_recall) / (micro_recall + micro_precision)
 
-    print("### PER-CLASS METRICS ###")
-    print("PRECIS  RECALL  F1    ")
+    print("### PER-CLASS METRICS ###", flush=True)
+    print("PRECIS  RECALL  F1    ", flush=True)
     for label in labels:
-        print(f"{precision_dict[label]:6.4f}  {recall_dict[label]:6.4f}  {f1_dict[label]:6.4f}  {label.upper()}")
+        print(f"{precision_dict[label]:6.4f}  {recall_dict[label]:6.4f}  {f1_dict[label]:6.4f}  {label.upper()}", flush=True)
 
     print()
-    print("### AVERAGED METRICS ###")
+    print("### AVERAGED METRICS ###", flush=True)
     print()
-    print("MICRO AVERAGED")
-    print("PRECIS  RECALL  F1    ")
-    print(f"{micro_precision:6.4f}  {micro_recall:6.4f}  {micro_f1:6.4f}")
+    print("MICRO AVERAGED", flush=True)
+    print("PRECIS  RECALL  F1    ", flush=True)
+    print(f"{micro_precision:6.4f}  {micro_recall:6.4f}  {micro_f1:6.4f}", flush=True)
     print()
-    print("MACRO AVERAGED")
-    print("PRECIS  RECALL  F1    ")
-    print(f"{macro_precision:6.4f}  {macro_recall:6.4f}  {macro_f1:6.4f}")
+    print("MACRO AVERAGED", flush=True)
+    print("PRECIS  RECALL  F1    ", flush=True)
+    print(f"{macro_precision:6.4f}  {macro_recall:6.4f}  {macro_f1:6.4f}", flush=True)
 
-def evaluate_baseline():
-    try:
-        with open("topic_models.pkl", "rb") as f:
-            models, dictionary = pickle.load(f)
-    except:
-        print('heyo!')
-        build_model()
-        with open("topic_models.pkl", "rb") as f:
-            models, dictionary = pickle.load(f)
+def evaluate_baseline(num_lda_models):
+    #try:
+        #with open("topic_models.pkl", "rb") as f:
+        #    models, dictionary = pickle.load(f)
+    #except:
+    print('In evaluate baseline: model not found. Building it.', flush=True)
+    build_model(num_lda_models)
+    with open("topic_models_bs.pkl", "rb") as f:
+        models, dictionary = pickle.load(f)
     try:
         with open("classifier.pkl", "rb") as f:
             p_class, p_label = pickle.load(f)
@@ -357,7 +310,7 @@ def evaluate_baseline():
     fn = defaultdict(int)
     for assignment, questions in ground_truth.get_groundTruth().items():
         for question, ground in questions.items():
-            with open('questions/' + assignment + "/" + question) as f:
+            with open('questions/' + assignment + "/" + question, encoding='utf8') as f:
                 try:
                     txt1 = f.read()
                 except:
@@ -365,7 +318,7 @@ def evaluate_baseline():
                 txt1 = process([txt1])
                 results = {}
                 for file in os.listdir("topics/"):
-                    with open("topics/" + file) as doc2:
+                    with open("topics/" + file, encoding='utf8') as doc2:
                         txt = doc2.read()
                         # print("hey")
                         txt = process([txt])
@@ -398,7 +351,7 @@ def evaluate_baseline():
     f1_dict = defaultdict(int)
     for label in labels:
         if tp[label] == 0:
-            print(label)
+            print(label, flush=True)
             continue
         precision_dict[label] = tp[label] / (fp[label]+tp[label])
         recall_dict[label] = tp[label] / (fn[label]+tp[label])
@@ -411,21 +364,21 @@ def evaluate_baseline():
     micro_recall = sum(tp.values()) / (sum(tp.values()) + sum(fn.values()))
     micro_f1 = 2 * (micro_precision * micro_recall) / (micro_recall + micro_precision)
 
-    print("### PER-CLASS METRICS ###")
-    print("PRECIS  RECALL  F1    ")
+    print("### PER-CLASS METRICS ###", flush=True)
+    print("PRECIS  RECALL  F1    ", flush=True)
     for label in labels:
-        print(f"{precision_dict[label]:6.4f}  {recall_dict[label]:6.4f}  {f1_dict[label]:6.4f}  {label.upper()}")
+        print(f"{precision_dict[label]:6.4f}  {recall_dict[label]:6.4f}  {f1_dict[label]:6.4f}  {label.upper()}", flush=True)
 
     print()
-    print("### AVERAGED METRICS ###")
+    print("### AVERAGED METRICS ###", flush=True)
     print()
-    print("MICRO AVERAGED")
-    print("PRECIS  RECALL  F1    ")
-    print(f"{micro_precision:6.4f}  {micro_recall:6.4f}  {micro_f1:6.4f}")
+    print("MICRO AVERAGED", flush=True)
+    print("PRECIS  RECALL  F1    ", flush=True)
+    print(f"{micro_precision:6.4f}  {micro_recall:6.4f}  {micro_f1:6.4f}", flush=True)
     print()
-    print("MACRO AVERAGED")
-    print("PRECIS  RECALL  F1    ")
-    print(f"{macro_precision:6.4f}  {macro_recall:6.4f}  {macro_f1:6.4f}")
+    print("MACRO AVERAGED", flush=True)
+    print("PRECIS  RECALL  F1    ", flush=True)
+    print(f"{macro_precision:6.4f}  {macro_recall:6.4f}  {macro_f1:6.4f}", flush=True)
 
 
 
@@ -437,31 +390,22 @@ def evaluate_baseline():
 
 
 if __name__ == "__main__":
-    evaluate_bayes()
+    for num_models in range(1,10):
+        print('\nFOR ' +str(num_models)+ ' LDA MODELS: \n', flush=True)
+        evaluate_bayes(num_models)
 
 def get_results(question):
     print('hi')
     try:
-<<<<<<< HEAD
-        with open("./topic_models.pkl", "rb") as f:
-=======
-        with open("topic_models.pkl", "rb") as f:
->>>>>>> 05c3ccb1144fac9bc2b628c1a18bfe5fd3424ac9
+        with open("topic_models_bs.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     except:
         print('heyo!')
         build_model()
-<<<<<<< HEAD
-        with open("./topic_models.pkl", "rb") as f:
-            models, dictionary = pickle.load(f)
-    try:
-        with open("./classifier.pkl", "rb") as f:
-=======
-        with open("topic_models.pkl", "rb") as f:
+        with open("topic_models_bs.pkl", "rb") as f:
             models, dictionary = pickle.load(f)
     try:
         with open("classifier.pkl", "rb") as f:
->>>>>>> 05c3ccb1144fac9bc2b628c1a18bfe5fd3424ac9
             p_class, p_label = pickle.load(f)
     except:
         bayes_EM(models, dictionary)
