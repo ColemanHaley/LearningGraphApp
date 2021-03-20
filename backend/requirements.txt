@@ -18,7 +18,7 @@ gensim==3.7.3
 gunicorn==20.0.4
 idna==2.9
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 jmespath==0.9.5
 jsonschema==3.0.2
 Mako==1.1.2
