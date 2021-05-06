@@ -11,7 +11,7 @@ cymem==2.0.3
 docutils==0.15.2
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.1.0/en_core_web_sm-2.1.0.tar.gz#egg=en_core_web_sm
 Flask==1.1.1
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 Flask-JWT-Extended==3.24.1
 Flask-SQLAlchemy==2.4.1
 gensim==3.7.3
